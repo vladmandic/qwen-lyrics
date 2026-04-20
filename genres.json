@@ -1,0 +1,54 @@
+{
+  "auto": {
+    "description": "Auto-detect genre, no specific context",
+    "context": "Transcribe the song lyrics accurately. Preserve all words, slang, and stylistic choices exactly as sung."
+  },
+  "pop": {
+    "description": "Pop music — clean vocals, catchy hooks, repeated choruses",
+    "context": "Transcribe these pop song lyrics. Preserve repeated hooks, bridges, and chorus lines exactly. Keep all 'oh', 'ah', 'yeah' ad-libs. Do not paraphrase or summarize."
+  },
+  "rock": {
+    "description": "Rock music — electric guitars, powerful vocals, often shouted",
+    "context": "Transcribe these rock song lyrics. Preserve raw vocal delivery including shouted words, elongated syllables, and gritty pronunciation. Keep profanity and slang intact."
+  },
+  "hiphop": {
+    "description": "Hip-hop — fast delivery, dense rhyme schemes, complex flow",
+    "context": "Transcribe these hip-hop lyrics with high precision. Preserve all slang, AAVE (African American Vernacular English), ad-libs, sound effects ('skrrt', 'brr', 'ayy'), and rapid-fire rhymes. Do not correct grammar or spelling. Maintain exact word choice."
+  },
+  "rap": {
+    "description": "Rap — similar to hip-hop, emphasis on spoken word and rhythm",
+    "context": "Transcribe these rap lyrics precisely. Keep all slang, ad-libs ('uh', 'yeah', 'what'), and colloquialisms exactly as spoken. Preserve rhythm-driven word placement. Do not alter grammar or vocabulary."
+  },
+  "country": {
+    "description": "Country music — storytelling, regional dialect, twang",
+    "context": "Transcribe these country song lyrics. Preserve Southern dialect, dropped g's ('runnin'', 'walkin''), colloquialisms, and storytelling phrasing. Keep contractions and regional speech patterns intact."
+  },
+  "edm": {
+    "description": "Electronic dance music — minimal lyrics, repeated phrases, vocal chops",
+    "context": "Transcribe these EDM song lyrics. There may be very few lyrics with many repeated phrases and vocal hooks. Preserve exact repetitions and all vocal fragments, even if they seem incomplete."
+  },
+  "metal": {
+    "description": "Metal — screamed or growled vocals, aggressive delivery",
+    "context": "Transcribe these metal song lyrics. Vocals may be screamed, growled, or heavily distorted. Preserve dark or aggressive vocabulary, heavy imagery, and all lyrical content including extreme expressions."
+  },
+  "jazz": {
+    "description": "Jazz — scatting, improvised phrasing, sophisticated vocabulary",
+    "context": "Transcribe these jazz lyrics. Preserve scat syllables ('doo-wop', 'ba-da-bop', 'sha-la'), improvised vocal phrases, and sophisticated vocabulary. Maintain the exact syllables even when they are non-lexical."
+  },
+  "blues": {
+    "description": "Blues — emotional delivery, bent notes, repeated lyric lines",
+    "context": "Transcribe these blues song lyrics. Blues often repeats the first line of a verse twice before the third line. Preserve that structure, regional dialect, and emotional vocal delivery including moans and bent notes."
+  },
+  "folk": {
+    "description": "Folk — acoustic, narrative storytelling, clear diction",
+    "context": "Transcribe these folk song lyrics. Lyrics are typically narrative and conversational with clear diction. Preserve poetic word choices, archaic phrasing, and storytelling structure."
+  },
+  "rnb": {
+    "description": "R&B — smooth vocals, melisma, soulful runs",
+    "context": "Transcribe these R&B lyrics. Vocals may include melismatic runs and extended syllables. Preserve all ad-libs ('baby', 'ooh', 'mmm'), vocal runs, and soulful phrasing."
+  },
+  "reggae": {
+    "description": "Reggae — Jamaican patois, relaxed delivery, social themes",
+    "context": "Transcribe these reggae lyrics. Preserve Jamaican patois and dialect (e.g., 'irie', 'riddim', 'jah'), dropped syllables, and relaxed vocal phrasing. Do not translate dialect to standard English."
+  }
+}

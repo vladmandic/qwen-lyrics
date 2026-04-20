@@ -1,0 +1,28 @@
+# base
+--extra-index-url https://download.pytorch.org/whl/cu1128
+torch
+torchvision
+torchaudio
+torchcodec
+transformers
+accelerate
+huggingface_hub
+hf_transfer
+qwen_asr
+soundfile
+argparse
+rich
+numpy
+
+# demucs
+demucs
+
+# build/test
+ninja
+ruff
+pylint
+
+# tune
+g2p_en
+sentence-transformers
+editdistance
