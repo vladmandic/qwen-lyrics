@@ -411,15 +411,47 @@ def ensure_csv_header(csv_path: Path) -> None:
 
 def discover_song_pairs(samples_dir: Path, selected_songs: set[str]) -> list[tuple[Path, Path, str]]:
     pairs: list[tuple[Path, Path, str]] = []
-    for audio_path in sorted(samples_dir.glob("*.mp3")):
-        song_name = audio_path.stem
+    audio_files = sorted(samples_dir.glob("*.mp3"))
+    stems = {audio_path.stem for audio_path in audio_files}
+
+    # Track one logical song per stem, preferring "-vocals" over base audio.
+    grouped: dict[str, dict[str, Path | None]] = {}
+
+    for audio_path in audio_files:
+        stem = audio_path.stem
+        base_name = stem
+        variant_name = ""
+
+        if "-" in stem:
+            possible_base, possible_variant = stem.rsplit("-", 1)
+            if possible_base in stems:
+                base_name = possible_base
+                variant_name = possible_variant
+
+        entry = grouped.setdefault(base_name, {"base": None, "vocals": None})
+        if variant_name == "vocals":
+            entry["vocals"] = audio_path
+        elif variant_name:
+            # Ignore non-vocals variants like "-bass", "-drums", etc.
+            continue
+        else:
+            entry["base"] = audio_path
+
+    for song_name in sorted(grouped):
         if selected_songs and song_name not in selected_songs:
             continue
-        lyrics_path = audio_path.with_suffix(".txt")
-        if not lyrics_path.exists():
-            print(f"Skipping {audio_path.name}: missing reference lyrics {lyrics_path.name}", file=sys.stderr)
+
+        selected_audio = grouped[song_name]["vocals"] or grouped[song_name]["base"]
+        if selected_audio is None:
             continue
-        pairs.append((audio_path, lyrics_path, song_name))
+
+        lyrics_path = samples_dir / f"{song_name}.txt"
+        if not lyrics_path.exists():
+            print(f"Skipping {selected_audio.name}: missing reference lyrics {lyrics_path.name}", file=sys.stderr)
+            continue
+
+        pairs.append((selected_audio, lyrics_path, song_name))
+
     return pairs
 
 
