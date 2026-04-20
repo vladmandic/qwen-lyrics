@@ -28,10 +28,12 @@ python align.py vocals.mp3 samples/rap.txt --output aligned.json
 
 ### Params tune
 
-Since `lyrics` implements a lot of differents tuning params, you can run the following command to find the best params for your audio
+Since `lyrics` implements a lot of differents tuning params, you can run `tune` to find the best params for your audio  
+Followed by `rank` to see the best params combination for your audio  
 
 ```bash
 python tune.py
+python rank.py
 ```
 
 ## Links
