@@ -18,18 +18,18 @@ class LyricsExtract:
     CACHE_DIR = "/workspace/sdnext/models/huggingface/"
 
     DEFAULT_SAMPLE_RATE = 16000
-    DEFAULT_CHUNK_SIZE_SECONDS = 16.0
+    DEFAULT_CHUNK_SIZE_SECONDS = 10.0
     DEFAULT_CHUNK_OVERLAP_SECONDS = 0.5
-    DEFAULT_BATCH_SIZE = 1
+    DEFAULT_BATCH_SIZE = 4
     DEFAULT_DURATION = 0.0
-    DEFAULT_NUM_BEAMS = 1
-    DEFAULT_TEMPERATURE = 0.7
+    DEFAULT_NUM_BEAMS = 2
+    DEFAULT_TEMPERATURE = 1.
     DEFAULT_MAX_NEW_TOKENS = 256
-    DEFAULT_LENGTH_PENALTY = 0.7
+    DEFAULT_LENGTH_PENALTY = 0.8
     DEFAULT_REPETITION_PENALTY = 0.8
     DEFAULT_NO_REPEAT_NGRAM_SIZE = 3
     DEFAULT_DO_SAMPLE = True
-    DEFAULT_EARLY_STOPPING = False
+    DEFAULT_EARLY_STOPPING = True
     DEFAULT_GENRE = "auto"
     DEFAULT_LANGUAGE = "English"
     DEFAULT_CONTEXT = ""
@@ -59,7 +59,7 @@ class LyricsExtract:
         self.dtype = dtype
         self.cache_dir = cache_dir
         self.share_asr_model = share_asr_model
-        with open(genres_path, encoding="utf-8") as f:
+        with open(genres_path or "genres.json", encoding="utf-8") as f:
             self.genres = json.load(f)
 
         load_kwargs = {

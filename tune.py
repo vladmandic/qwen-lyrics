@@ -4,27 +4,20 @@ import argparse
 import csv
 import itertools
 import json
-import math
-import re
 import sys
 import time
-from collections import Counter
 from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 import threading
-from typing import TYPE_CHECKING, Iterable
+from typing import Iterable
 
-import editdistance
 import torch
 from rich import print as rp
 
 from lyrics import LyricsExtract
-
-if TYPE_CHECKING:
-    from g2p_en import G2p
-    from sentence_transformers import SentenceTransformer
+from metrics import EvaluationMetrics, evaluate_text, summarize_metrics
 
 
 PARAMETER_GRID = {
@@ -55,28 +48,6 @@ CSV_COLUMNS = [
     "summary",
     "timestamp",
 ]
-
-COMPOSITE_WEIGHTS = {
-    "wer": 0.35,
-    "per": 0.25,
-    "semantic_similarity": 0.20,
-    "cer": 0.10,
-    "bleu_score": 0.10,
-}
-
-TOKEN_RE = re.compile(r"\b\w+(?:'\w+)?\b")
-BRACKETED_RE = re.compile(r"\[[^\]]*\]")
-
-
-@dataclass(frozen=True)
-class EvaluationMetrics:
-    wer: float
-    cer: float
-    bleu_score: float
-    per: float
-    semantic_similarity: float
-    composite_score: float
-
 
 @dataclass(frozen=True)
 class EvaluationResult:
@@ -134,179 +105,6 @@ def resolve_dtype(name: str) -> torch.dtype:
         "bfloat16": torch.bfloat16,
     }
     return mapping[name]
-
-
-def normalize_text(text: str) -> str:
-    lowered = text.casefold()
-    lowered = lowered.replace("\r\n", "\n").replace("\r", "\n")
-    lowered = re.sub(r"[^\w\s']", " ", lowered)
-    lowered = re.sub(r"\s+", " ", lowered)
-    return lowered.strip()
-
-
-def strip_bracketed_annotations(text: str) -> str:
-    stripped = BRACKETED_RE.sub(" ", text)
-    return re.sub(r"\s+", " ", stripped).strip()
-
-
-def tokenize_words(text: str) -> list[str]:
-    normalized = normalize_text(text)
-    if not normalized:
-        return []
-    return TOKEN_RE.findall(normalized)
-
-
-def tokenize_chars(text: str) -> list[str]:
-    normalized = normalize_text(text)
-    return list(normalized)
-
-
-def bleu_score(reference_tokens: list[str], hypothesis_tokens: list[str], max_order: int = 4) -> float:
-    if not reference_tokens or not hypothesis_tokens:
-        return 0.0
-
-    precisions: list[float] = []
-    for order in range(1, max_order + 1):
-        reference_ngrams = Counter(
-            tuple(reference_tokens[index : index + order])
-            for index in range(max(0, len(reference_tokens) - order + 1))
-        )
-        hypothesis_ngrams = Counter(
-            tuple(hypothesis_tokens[index : index + order])
-            for index in range(max(0, len(hypothesis_tokens) - order + 1))
-        )
-        if not hypothesis_ngrams:
-            precisions.append(1e-9)
-            continue
-
-        overlap = sum(min(count, reference_ngrams[ngram]) for ngram, count in hypothesis_ngrams.items())
-        total = sum(hypothesis_ngrams.values())
-        precisions.append((overlap + 1.0) / (total + 1.0))
-
-    reference_len = len(reference_tokens)
-    hypothesis_len = len(hypothesis_tokens)
-    if hypothesis_len == 0:
-        return 0.0
-    brevity_penalty = 1.0 if hypothesis_len > reference_len else math.exp(1.0 - (reference_len / hypothesis_len))
-    score = brevity_penalty * math.exp(sum(math.log(value) for value in precisions) / max_order)
-    return score * 100.0
-
-
-def error_rate(reference_items: list[str], hypothesis_items: list[str]) -> float:
-    if not reference_items:
-        return 0.0 if not hypothesis_items else 1.0
-    distance = editdistance.eval(reference_items, hypothesis_items)
-    return distance / len(reference_items)
-
-
-def semantic_similarity(model: SentenceTransformer, reference_text: str, hypothesis_text: str) -> float:
-    if not reference_text.strip() and not hypothesis_text.strip():
-        return 1.0
-    if not reference_text.strip() or not hypothesis_text.strip():
-        return 0.0
-    from sentence_transformers.util import cos_sim
-
-    embeddings = model.encode([reference_text, hypothesis_text], convert_to_tensor=True)
-    return float(cos_sim(embeddings[0], embeddings[1]).item())
-
-
-def phonemes_for_text(converter: G2p, text: str) -> list[str]:
-    words = tokenize_words(text)
-    if not words:
-        return []
-    phonemes = converter(" ".join(words))
-    return [token for token in phonemes if token.strip() and token != " "]
-
-
-def evaluate_text(
-    *,
-    reference_text: str,
-    hypothesis_text: str,
-    phoneme_converter: G2p,
-    semantic_model: SentenceTransformer,
-) -> EvaluationMetrics:
-    cleaned_reference_text = strip_bracketed_annotations(reference_text)
-
-    reference_words = tokenize_words(cleaned_reference_text)
-    hypothesis_words = tokenize_words(hypothesis_text)
-    reference_chars = tokenize_chars(cleaned_reference_text)
-    hypothesis_chars = tokenize_chars(hypothesis_text)
-    reference_phonemes = phonemes_for_text(phoneme_converter, cleaned_reference_text)
-    hypothesis_phonemes = phonemes_for_text(phoneme_converter, hypothesis_text)
-
-    wer_value = error_rate(reference_words, hypothesis_words)
-    cer_value = error_rate(reference_chars, hypothesis_chars)
-    bleu_value = bleu_score(reference_words, hypothesis_words)
-    per_value = error_rate(reference_phonemes, hypothesis_phonemes)
-    semantic_value = semantic_similarity(
-        semantic_model,
-        normalize_text(cleaned_reference_text),
-        normalize_text(hypothesis_text),
-    )
-
-    return EvaluationMetrics(
-        wer=wer_value,
-        cer=cer_value,
-        bleu_score=bleu_value,
-        per=per_value,
-        semantic_similarity=semantic_value,
-        composite_score=compute_composite_score(
-            wer=wer_value,
-            cer=cer_value,
-            bleu_value=bleu_value,
-            per=per_value,
-            semantic_value=semantic_value,
-        ),
-    )
-
-
-def clamp01(value: float) -> float:
-    return max(0.0, min(1.0, value))
-
-
-def compute_composite_score(*, wer: float, cer: float, bleu_value: float, per: float, semantic_value: float) -> float:
-    normalized = {
-        "wer": 1.0 - clamp01(wer),
-        "cer": 1.0 - clamp01(cer),
-        "bleu_score": clamp01(bleu_value / 100.0),
-        "per": 1.0 - clamp01(per),
-        "semantic_similarity": clamp01((semantic_value + 1.0) / 2.0),
-    }
-    weighted_total = sum(COMPOSITE_WEIGHTS[name] * normalized[name] for name in COMPOSITE_WEIGHTS)
-    return weighted_total * 100.0
-
-
-def summarize_metrics(metrics: EvaluationMetrics) -> str:
-    parts: list[str] = []
-    if metrics.wer <= 0.2:
-        parts.append("strong word match")
-    elif metrics.wer <= 0.5:
-        parts.append("moderate word match")
-    else:
-        parts.append("weak word match")
-
-    if metrics.per <= 0.25:
-        parts.append("phonetics preserved")
-    elif metrics.per <= 0.6:
-        parts.append("phonetics partially preserved")
-    else:
-        parts.append("phonetics drifted")
-
-    if metrics.semantic_similarity >= 0.85:
-        parts.append("semantic match high")
-    elif metrics.semantic_similarity >= 0.65:
-        parts.append("semantic match fair")
-    else:
-        parts.append("semantic match low")
-
-    if metrics.composite_score >= 85.0:
-        parts.append("overall score strong")
-    elif metrics.composite_score >= 65.0:
-        parts.append("overall score fair")
-    else:
-        parts.append("overall score weak")
-
-    return "; ".join(parts)
 
 
 def get_default_parameters() -> dict[str, object]:

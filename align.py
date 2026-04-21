@@ -138,6 +138,8 @@ class LyricsAlign:
         return chunks
 
     def _align_single(self, wav: np.ndarray, sr: int, text: str, language: str) -> list[tuple[float, float, str]]:
+        if not self.asr.forced_aligner:
+            return []
         with self._asr_infer_lock:
             aligned = self.asr.forced_aligner.align(
                 audio=[(wav, sr)],

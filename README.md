@@ -36,6 +36,16 @@ python tune.py
 python rank.py
 ```
 
+### Metrics utility
+
+Compute metrics between two `.txt`/`.json` lyric files.
+For JSON inputs, the tool reads `lytics` (and falls back to `lyrics` for compatibility with existing samples).
+
+```bash
+python metrics.py samples/pop.json samples/pop.txt
+python metrics.py samples/pop.json samples/pop.txt --output json
+```
+
 ## Links
 
 - qwen3-asr finetuning: https://github.com/QwenLM/Qwen3-ASR/tree/main/finetuning
