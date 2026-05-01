@@ -1,0 +1,45 @@
+:root {
+  font-family: 'IBM Plex Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #e2e8f0;
+  background: #121212;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #121212;
+}
+
+#root {
+  min-height: 100dvh;
+  padding: 1rem;
+}
+
+.app-shell {
+  max-width: 1140px;
+  margin: 0 auto;
+  border: 1px solid #1f1f1f;
+  border-radius: 14px;
+  padding: 1.25rem;
+  background: #181818;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.app-shell h1 {
+  margin: 0;
+  font-size: 1.45rem;
+  color: #f8fafc;
+}
+
+.app-shell p {
+  margin-top: 0.35rem;
+  margin-bottom: 1rem;
+  color: #cbd5e1;
+}

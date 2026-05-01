@@ -1,0 +1,26 @@
+[
+  {
+    "id": "vocals",
+    "label": "Vocals",
+    "file": "/samples/pop-vocals.mp3",
+    "color": ["#DD00DD", "#660066", "#DD00DD"]
+  },
+  {
+    "id": "drums",
+    "label": "Drums",
+    "file": "/samples/pop-drums.mp3",
+    "color": ["#1155DD", "#002266", "#1155DD"]
+  },
+  {
+    "id": "bass",
+    "label": "Bass",
+    "file": "/samples/pop-bass.mp3",
+    "color": ["#00BB88", "#008866", "#00BB88"]
+  },
+  {
+    "id": "other",
+    "label": "Other",
+    "file": "/samples/pop-other.mp3",
+    "color": ["#9CA3AF", "#6B7280", "#9CA3AF"]
+  }
+]
