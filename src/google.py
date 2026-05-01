@@ -88,7 +88,7 @@ class GeminiLyrics:
             )
         if language and language.strip() and language.strip().lower() != self.DEFAULT_LANGUAGE.lower():
             prompt_text = f"{prompt_text} Language: {language.strip()}."
-        if not prompt_text.endswith("."):
+        if not prompt_text.endswith((".", "?", "!")):
             prompt_text = f"{prompt_text}."
         return f"{prompt_text}{self.OUTPUT_FORMAT_GUARD}"
 

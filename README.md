@@ -18,19 +18,25 @@ Set of tools for lyrics extraction from audio files using
 
 ## Examples
 
-```bash
-# demucs-audio-separation
-python -m cli.split --compile --save --format mp3 samples/pop.mp3
+demucs-audio-separation
+> python -m cli.split --compile --save --format mp3 samples/pop.mp3  
 
-# extract-lyrics
-python -m cli.lyrics --genre pop --output samples/pop-qwen.json samples/pop-vocals.mp3
-python -m cli.google --genre pop --output samples/pop-gemini-flash.json samples/pop-vocals.mp3
+extract-lyrics
+> python -m cli.lyrics --genre pop --output samples/pop-qwen.json samples/pop-vocals.mp3  
+> python -m cli.google --genre pop --output samples/pop-gemini-flash.json samples/pop-vocals.mp3  
 
-# evaluate-lyrics
-python -m cli.metrics samples/pop-genius.txt samples/pop-qwen.json
-python -m cli.metrics samples/pop-genius.txt samples/pop-gemini-flash.json
+evaluate-lyrics
+> python -m cli.metrics samples/pop-genius.txt samples/pop-qwen.json  
+> python -m cli.metrics samples/pop-genius.txt samples/pop-gemini-flash.json  
 
-# align-lyrics
-python -m cli.align samples/pop-vocals.mp3 samples/pop-qwen.json --output samples/pop-qwen-aligned.json
-python -m cli.align samples/pop-vocals.mp3 samples/pop-gemini-flash.json --output samples/pop-gemini-flash-aligned.json
-```
+align-lyrics
+> python -m cli.align samples/pop-vocals.mp3 samples/pop-qwen.json --output samples/pop-qwen-aligned.json  
+> python -m cli.align samples/pop-vocals.mp3 samples/pop-gemini-flash.json --output samples/pop-gemini-flash-aligned.json  
+
+## Extra
+
+run lyrics extraction with all possible params
+> cli/tune.py  
+
+rank results by metrics scores
+> cli/rank.py  

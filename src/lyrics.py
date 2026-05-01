@@ -112,7 +112,10 @@ class LyricsExtract:
 
     def _resolve_context(self, genre: str, context: str) -> str:
         if context.strip():
-            return f"{context.strip()}{self.OUTPUT_FORMAT_GUARD}"
+            prompt_text = context.strip()
+            if not prompt_text.endswith((".", "?", "!")):
+                prompt_text = f"{prompt_text}."
+            return f"{prompt_text}{self.OUTPUT_FORMAT_GUARD}"
         genre_name = genre.strip() if genre else ""
         preset = self.genres.get(genre_name) if genre_name else None
         if preset is None:
@@ -121,6 +124,8 @@ class LyricsExtract:
             "context",
             "Transcribe the song lyrics accurately. Preserve all words and stylistic choices exactly as sung.",
         )
+        if not base_context.endswith((".", "?", "!")):
+            base_context = f"{base_context}."
         return f"{base_context}{self.OUTPUT_FORMAT_GUARD}"
 
     def load(self, path: str, target_sr: int = DEFAULT_SAMPLE_RATE) -> tuple[np.ndarray, int]:

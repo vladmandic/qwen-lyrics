@@ -26,10 +26,10 @@ class Dumucs:
                 ) -> None:
         from demucs.pretrained import get_model
         self.device = _device
-        self.dype = _dtype
+        self.dtype = _dtype
         self.model_name = _model if _model is not None else self.models[0]
         self.model = get_model(self.model_name)
-        self.model.to(device=self.device, dtype=self.dype)
+        self.model.to(device=self.device, dtype=self.dtype)
         self.target_sr = _sr
         self.do_compile = _compile
         self.do_mono = _mono
@@ -42,7 +42,7 @@ class Dumucs:
         self.capabilities: list[str] = list(self.model.sources)
 
     def __str__(self) -> str:
-        return f"VoiceDumucs(model={self.model_name} cls={self.model.__class__.__name__} model_sr={self.model.samplerate} channels={self.model.audio_channels} capabilities={self.capabilities} device={self.device} target_sr={self.target_sr} mono={self.do_mono} normalize={self.do_normalize} compile={self.do_compile} dtype={self.dype})"
+        return f"VoiceDumucs(model={self.model_name} cls={self.model.__class__.__name__} model_sr={self.model.samplerate} channels={self.model.audio_channels} capabilities={self.capabilities} device={self.device} target_sr={self.target_sr} mono={self.do_mono} normalize={self.do_normalize} compile={self.do_compile} dtype={self.dtype})"
 
     def load(self, path: str) -> tuple[torch.Tensor, int]:
         from demucs.audio import AudioFile
@@ -91,14 +91,14 @@ class Dumucs:
         self,
         audio: torch.Tensor | str,
         input_sr: int | None = None,
-    ) -> tuple[torch.Tensor, int]:
+    ) -> list[dict[str, object]]:
         from demucs.apply import apply_model
         if isinstance(audio, str):
             audio, input_sr = self.load(audio)
         if input_sr is None:
             raise ValueError("input_sr must be provided when audio is a tensor")
-        batch = audio[None].to(device=self.device, dtype=self.dype)
-        with torch.no_grad(), torch.autocast(device_type=self.device.type, dtype=self.dype):
+        batch = audio[None].to(device=self.device, dtype=self.dtype)
+        with torch.no_grad(), torch.autocast(device_type=self.device.type, dtype=self.dtype):
             sources = apply_model(
                 self.model,
                 mix=batch,

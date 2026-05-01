@@ -338,15 +338,15 @@ def load_input_text(path: Path) -> str:
         if not isinstance(payload, dict):
             raise ValueError(f"json input must be an object: {path}")
 
-        text = _coerce_text(payload.get("lytics"))
+        text = _coerce_text(payload.get("lyrics"))
         if text is not None:
             return text
 
-        # Compatibility fallback for current repository samples that store 'lyrics'.
-        fallback = _coerce_text(payload.get("lyrics"))
+        # Compatibility fallback for legacy files that use the misspelled 'lytics' field.
+        fallback = _coerce_text(payload.get("lytics"))
         if fallback is not None:
             return fallback
 
-        raise ValueError(f"json input must include a non-empty 'lytics' field: {path}")
+        raise ValueError(f"json input must include a non-empty 'lyrics' field: {path}")
 
     return path.read_text(encoding="utf-8")
