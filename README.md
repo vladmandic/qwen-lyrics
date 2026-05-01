@@ -1,55 +1,36 @@
-# Qwen-Lyrics
+# Lyrics
 
-Set of tools for lyrics extraction from audio files using `qwen3-asr` finetuning and `demucs` for voice separation
+Set of tools for lyrics extraction from audio files using
+- `qwen3-asr` package and finetuned model plus forced aligner,
+- `google-genai` google-ai client library used for gemini model access
+- `demucs` package for voice separation
 
-### Voice separation
+## Reference
 
-Uses `demucs` to separate vocals from the original audio
+- [demucs repo](https://github.com/facebookresearch/demucs)
+- [gemini docs](https://ai.google.dev/gemini-api/docs/)
+- [qwen3-asr repo](https://github.com/QwenLM/Qwen3-ASR)
+- [qwen3-asr finetuning docs](https://github.com/QwenLM/Qwen3-ASR/tree/main/finetuning)
+- [genius.com api](https://docs.genius.com/#/getting-started-h1)
+- [scraping genius.com](https://medium.com/@rachit.lsoni/scraping-song-lyrics-a-fun-and-practical-guide-c0b07e8e7312)
+- [demucs leaderboard project](https://github.com/adefossez/mdx21_demucs)
+- [demucs leaderboard project](https://github.com/kuielab/mdx-net-submission/tree/leaderboard_A)
 
-```bash
-python voice.py input.mp3 vocals.mp3
-```
-
-### Lyrics extraction
-
-Can work on original or separated vocals
-
-```bash
-python lyrics.py vocals.mp3 --genre rap
-```
-
-### Forced alignment
-
-When you already have lyrics text and only need timestamps from forced alignment.
+## Examples
 
 ```bash
-python align.py vocals.mp3 samples/rap.txt --output aligned.json
+# demucs-audio-separation
+python -m cli.split --compile --save --format mp3 samples/pop.mp3
+
+# extract-lyrics
+python -m cli.lyrics --genre pop --output samples/pop-qwen.json samples/pop-vocals.mp3
+python -m cli.google --genre pop --output samples/pop-gemini-flash.json samples/pop-vocals.mp3
+
+# evaluate-lyrics
+python -m cli.metrics samples/pop-genius.txt samples/pop-qwen.json
+python -m cli.metrics samples/pop-genius.txt samples/pop-gemini-flash.json
+
+# align-lyrics
+python -m cli.align samples/pop-vocals.mp3 samples/pop-qwen.json --output samples/pop-qwen-aligned.json
+python -m cli.align samples/pop-vocals.mp3 samples/pop-gemini-flash.json --output samples/pop-gemini-flash-aligned.json
 ```
-
-### Params tune
-
-Since `lyrics` implements a lot of differents tuning params, you can run `tune` to find the best params for your audio  
-Followed by `rank` to see the best params combination for your audio  
-
-```bash
-python tune.py
-python rank.py
-```
-
-### Metrics utility
-
-Compute metrics between two `.txt`/`.json` lyric files.
-For JSON inputs, the tool reads `lytics` (and falls back to `lyrics` for compatibility with existing samples).
-
-```bash
-python metrics.py samples/pop.json samples/pop.txt
-python metrics.py samples/pop.json samples/pop.txt --output json
-```
-
-## Links
-
-- qwen3-asr finetuning: https://github.com/QwenLM/Qwen3-ASR/tree/main/finetuning
-- genius.com api: https://docs.genius.com/#/getting-started-h1
-- Scraping genius.com: https://medium.com/@rachit.lsoni/scraping-song-lyrics-a-fun-and-practical-guide-c0b07e8e7312
-- Demucs#1: https://github.com/adefossez/mdx21_demucs
-- Demucs#2: https://github.com/kuielab/mdx-net-submission/tree/leaderboard_A

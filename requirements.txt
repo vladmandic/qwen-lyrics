@@ -1,5 +1,4 @@
 # base
---extra-index-url https://download.pytorch.org/whl/cu1128
 torch
 torchvision
 torchaudio
@@ -13,6 +12,9 @@ soundfile
 argparse
 rich
 numpy
+
+# google
+google-genai
 
 # demucs
 demucs
